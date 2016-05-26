@@ -1,0 +1,106 @@
+#!/usr/bin/env ruby
+# encoding: UTF-8
+# rubocop: disable LineLength
+# RunDeck Provider - Chef
+# Brian Dwyer - Intelligent Digital Services - 5/14/16
+
+lib = File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
+require 'rubygems'
+require 'chef-rundeck'
+require 'mixlib/cli'
+require 'json'
+
+# => Github-RunDeck Launcher
+class ChefRunDeckCLI
+  include Mixlib::CLI
+  option :cache_timeout,
+         short: '-t CACHE_TIMEOUT',
+         long: '--timeout CACHE_TIMEOUT',
+         description: 'Sets the response timeout in seconds for the query data.',
+         default: 30
+
+  option :config_file,
+         short: '-c CONFIG',
+         long: '--config CONFIG',
+         description: 'The configuration file to use, as opposed to command-line parameters (optional)',
+         default: '/tmp/config.json'
+
+  option :auth_file,
+         short: '-a CONFIG',
+         long: '--auth-json CONFIG',
+         description: 'The JSON file containing authorization information',
+         default: '/tmp/auth.json'
+
+  option :state_file,
+         short: '-s STATE',
+         long: '--state-json STATE',
+         description: 'The JSON file containing node state & auditing information',
+         default: '/tmp/state.json'
+
+  option :host,
+         short: '-h HOST',
+         long: '--host HOST',
+         description: 'Listen on HOST (Default: localhost)',
+         default: 'localhost'
+
+  option :port,
+         short: '-p PORT',
+         long: '--port PORT',
+         description: 'The port to run on. (Default: 9125)',
+         default: 9125
+
+  option :pidfile,
+         short: '-P FILE',
+         long: '--pidfile FILE',
+         description: 'Prefix for our PID file, default: /var/run/chef-rundeck-PORT.pid',
+         default: '/var/run/chef-rundeck'
+
+  option :env,
+         short: '-e ENV',
+         long: '--env ENV',
+         description: 'Sets the environment for chef-rundeck to execute under. Use "development" for more logging.',
+         default: 'production'
+end
+
+cli = ChefRunDeckCLI.new
+cli.parse_options
+
+# => Define JSON Parser
+def parse_json_config(file = nil)
+  return unless file && ::File.exist?(file.to_s)
+  begin
+    ::JSON.parse(::File.read(file.to_s), symbolize_names: true)
+  rescue JSON::ParserError
+    return
+  end
+end
+
+# => Parse JSON Config File
+json_config = parse_json_config(cli.config[:config_file])
+
+# => Merge Configuration (JSON File Wins)
+config = [cli.config, json_config].compact.reduce(:merge)
+
+# => Apply Configuration
+ChefRunDeck.auth_file = config[:auth_file]
+ChefRunDeck.state_file = config[:state_file]
+ChefRunDeck.cache_timeout = config[:cache_timeout].to_i
+ChefRunDeck.config_file = config[:config_file] if json_config
+ChefRunDeck.environment = config[:env].to_sym
+ChefRunDeck.config = config
+
+
+# => PID Management
+# => begin
+# =>   pid = "#{cli.config[:pidfile]}-#{cli.config[:port]}.pid"
+# =>   puts "Writing to #{pid}"
+# =>   File.open(pid, 'w') { |f| f.write(Process.pid) }
+# =>   at_exit { File.delete(pid) if File.exist?(pid) }
+# => rescue Exception => e
+# =>   puts "== Error writing pid file #{pid}!"
+# => end
+
+# => Launch the Application
+ChefRunDeck.run! bind: config[:host], port: config[:port] # => , environment: config[:env].to_sym
