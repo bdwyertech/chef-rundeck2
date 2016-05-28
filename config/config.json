@@ -1,0 +1,19 @@
+{
+  "cache_timeout": 30,
+  "auth_file": "/tmp/auth.json",
+  "state_file": "/tmp/state.json",
+  "host": "localhost",
+  "port": 9127,
+  "environment": "production",
+  "chef": {
+    "api_client": {
+      "client": "",
+      "key": ""
+    },
+    "admin_client": {
+      "client": "",
+      "key": ""
+    },
+    "endpoint": "https://chef.contoso.com/organizations/contoso"
+  }
+}
