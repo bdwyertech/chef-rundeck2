@@ -46,6 +46,31 @@ module ChefRunDeck
              long: '--state-json STATE',
              description: "The JSON file containing node state & auditing information (Default: #{Config.state_file})"
 
+      option :chef_api_endpoint,
+             short: '-ce ENDPOINT',
+             long: '--chef-api-endpoint ENDPOINT',
+             description: 'The Chef API Endpoint URL (e.g. https://api.chef.io/)'
+
+      option :chef_api_client,
+             short: '-ccn CLIENT_NAME',
+             long: '--chef-api-client-name CLIENT_NAME',
+             description: 'The name of the Non-Privileged API Client'
+
+      option :chef_api_client_key,
+             short: '-cck CLIENT_KEY',
+             long: '--chef-api-client-key CLIENT_KEY',
+             description: 'The path to the Non-Privileged API Client Keyfile'
+
+      option :chef_api_admin,
+             short: '-can ADMIN_NAME',
+             long: '--chef-api-admin-name ADMIN_NAME',
+             description: 'The name of the Administratively-Privileged API Client'
+
+      option :chef_api_admin_key,
+             short: '-cak ADMIN_KEY',
+             long: '--chef-api-admin-key ADMIN_KEY',
+             description: 'The path to the Administratively-Privileged API Client Keyfile'
+
       option :bind,
              short: '-b HOST',
              long: '--bind HOST',
@@ -80,12 +105,17 @@ module ChefRunDeck
 
       # => Apply Configuration
       ChefRunDeck::Config.setup do |cfg|
-        cfg.config_file = config[:config_file]
-        cfg.cache_timeout = config[:cache_timeout].to_i
-        cfg.port = config[:port]
-        cfg.auth_file = config[:auth_file]
-        cfg.state_file = config[:state_file]
-        cfg.environment = config[:environment].to_sym
+        cfg.config_file         = config[:config_file]
+        cfg.cache_timeout       = config[:cache_timeout].to_i
+        cfg.port                = config[:port]
+        cfg.auth_file           = config[:auth_file]
+        cfg.state_file          = config[:state_file]
+        cfg.environment         = config[:environment].to_sym
+        cfg.chef_api_endpoint   = config[:chef_api_endpoint]
+        cfg.chef_api_client     = config[:chef_api_client]
+        cfg.chef_api_client_key = config[:chef_api_client_key]
+        cfg.chef_api_admin      = config[:chef_api_admin]
+        cfg.chef_api_admin_key  = config[:chef_api_admin_key]
       end
 
       # => Launch the API

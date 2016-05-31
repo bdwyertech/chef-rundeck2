@@ -10,6 +10,7 @@
 #
 
 require 'chef-api'
+require 'chef-rundeck/config'
 
 module ChefRunDeck
   # => This is the Chef module.  It interacts with the Chef server
@@ -24,16 +25,16 @@ module ChefRunDeck
 
     def api_client
       # => Configure a Chef API Client
-      ChefAPI.endpoint = 'https://chef.contoso.com/organizations/contoso'
-      ChefAPI.client = 'rundeck-chef-client'
-      ChefAPI.key = '~/.chef/CHEF_CONTOSO/rundeck-chef-client.pem'
+      ChefAPI.endpoint = Config.chef_api_endpoint
+      ChefAPI.client = Config.chef_api_client
+      ChefAPI.key = Config.chef_api_client_key
     end
 
     def admin_api_client
       # => Configure an Administrative Chef API Client
-      ChefAPI.endpoint = 'https://chef.contoso.com/organizations/contoso'
-      ChefAPI.client = 'bdwyer'
-      ChefAPI.key = '~/.chef/CHEF_CONTOSO/bdwyer.pem'
+      ChefAPI.endpoint = Config.chef_api_endpoint
+      ChefAPI.client = Config.chef_api_admin
+      ChefAPI.key = Config.chef_api_admin_key
     end
 
     def reset!

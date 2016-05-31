@@ -41,6 +41,20 @@ module ChefRunDeck
     define_setting :state_file, File.join(root, 'config', 'state.json')
 
     #
+    # => Chef API Configuration
+    #
+    # => Chef Endpoint
+    define_setting :chef_api_endpoint, 'https://api.chef.io'
+
+    # => Unprivileged Client
+    define_setting :chef_api_client # => Username
+    define_setting :chef_api_client_key # => Path to Key
+
+    # => Administratively-Privileged Client
+    define_setting :chef_api_admin # => Username
+    define_setting :chef_api_admin_key # => Path to Key
+
+    #
     # => Facilitate Construction of Values
     #
     # => @return [class_variable]

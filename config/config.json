@@ -3,17 +3,11 @@
   "auth_file": "/tmp/auth.json",
   "state_file": "/tmp/state.json",
   "host": "localhost",
-  "port": 9127,
+  "port": 9125,
   "environment": "production",
-  "chef": {
-    "api_client": {
-      "client": "",
-      "key": ""
-    },
-    "admin_client": {
-      "client": "",
-      "key": ""
-    },
-    "endpoint": "https://chef.contoso.com/organizations/contoso"
-  }
+  "chef_api_endpoint": "https://chef.contoso.com/organizations/contoso",
+  "chef_api_client": "rundeck-chef-client",
+  "chef_api_client_key": "~/.chef/CHEF_CONTOSO/rundeck-chef-client.pem",
+  "chef_api_admin": "bdwyertech",
+  "chef_api_admin_key": "~/.chef/CHEF_CONTOSO/bdwyer.pem"
 }

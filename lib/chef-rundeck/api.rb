@@ -120,6 +120,7 @@ module ChefRunDeck
 
       # => Retrieve a List of Nodes
       get '/list' do
+        cache_control :public, max_age: 30
         Chef.list.to_json
       end
 
