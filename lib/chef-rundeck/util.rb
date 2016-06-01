@@ -47,6 +47,12 @@ module ChefRunDeck
       JSON.pretty_generate(response.map(&:name).sort_by(&:downcase))
     end
 
+    def serialize_csv(csv)
+      # => Serialize a CSV String into an Array
+      return unless csv && csv.is_a?(String)
+      csv.split(',')
+    end
+
     def serialize_revisions(branches, tags)
       # => Serialize Branches/Tags into JSON Array
       # => Branches = String, Tags = Key/Value
