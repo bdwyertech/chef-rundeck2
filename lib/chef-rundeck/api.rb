@@ -20,7 +20,6 @@ require 'chef-rundeck/state'
 
 # => Chef Options Provider for RunDeck
 module ChefRunDeck
-  puts "Inside API Module #{Config.port}" # => ***DEBUG***
   # => HTTP API
   class API < Sinatra::Base
     # => Include Modules
@@ -97,6 +96,9 @@ module ChefRunDeck
       before do
         # => This is a JSON API
         content_type 'application/json'
+
+        # => Make the Params Globally Accessible
+        Config.define_setting :query_params, params
 
         # => Instantiate the Default Client
         Chef.api_client

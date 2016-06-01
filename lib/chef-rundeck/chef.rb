@@ -40,14 +40,29 @@ module ChefRunDeck
     def reset!
       # => Reset the Chef API Configuration
       ChefAPI.reset!
+      # => Clear Transient Configuration
+      Config.clear('rundeck')
     end
 
+    # => Get Node
+    def get_node(node, casecomp = false)
+      node = Node.list.find { |n| n =~ /^#{node}$/i } if casecomp
+      return false unless Node.exists?(node)
+      Node.fetch(node)
+    end
+
+    # => Return Array List of Nodes
+    def list
+      Node.list
+    end
+
+    # => Delete a Node Object
     def delete(node)
       # => Make sure the Node Exists
       return unless Node.exists?(node)
 
+      # => Limit the Deletion to a Specific Role for Non-Admin's
       unless auth['admin']
-        # => Limit the Deletion to a Specific Role for Non-Admin's
         run_list = Node.fetch(node).run_list
         return unless run_list.empty? || auth['roles'].any? { |role| run_list.any? { |r| r =~ /#{role}/i } }
       end
@@ -64,8 +79,35 @@ module ChefRunDeck
     # =>  Resource Provider  <= #
     #############################
 
-    def partial_search
-      search_filter = {
+    #
+    # => Try to Parse Project-Specific Settings
+    #
+    def project_settings(project)
+      settings = Util.parse_json_config(Config.projects_file)
+      return {} unless settings && settings[project]
+      settings[project]
+    end
+
+    #
+    # => Construct Query-Specific Configuration
+    #
+    def transient_settings(project = nil)
+      # => Define the
+      # => (cfg = {})[:rundeck] = {}
+      cfg = {}
+      cfg[:username] = Config.query_params['username'] || Config.rd_node_username
+      cfg[:pattern] = Config.query_params['pattern'] || '*:*'
+      cfg[:extras] = Util.serialize_csv(Config.query_params['extras'])
+
+      # => Make the Settings Available via the Config Object
+      Config.add(rundeck: cfg)
+    end
+
+    #
+    # => Base Search Filter Definition
+    #
+    def default_search_filter
+      {
         name: ['name'],
         kernel_machine: ['kernel', 'machine'],
         kernel_os: ['kernel', 'os'],
@@ -79,58 +121,72 @@ module ChefRunDeck
         tags: ['tags'],
         hostname: ['hostname']
       }
-
-      result = PartialSearch.query(:node, search_filter, '*:*', start: 1)
-      result.rows # => .first['hostname']
     end
 
-    # => Sample JSON Node
-    # {
-    #   "localhost": {
-    #     "nodename": "localhost",
-    #     "hostname": "localhost",
-    #     "osVersion": "4.4.0-22-generic",
-    #     "osFamily": "unix",
-    #     "osArch": "amd64",
-    #     "description": "Rundeck server node",
-    #     "osName": "Linux",
-    #     "username": "rundeck"
-    #   }
-    # }
-
-    # => Get Node
-    def get_node(node, casecomp = false)
-      node = Node.list.find { |n| n =~ /^#{node}$/i } if casecomp
-      return false unless Node.exists?(node)
-      Node.fetch(node)
+    #
+    # => Parse Additional Filter Elements
+    #
+    # => Default Elements can be removed by passing them in here as null or empty
+    #
+    def search_filter_additions
+      attribs = {}
+      Array(Config.rundeck[:extras]).each do |attrib|
+        attribs[attrib.to_sym] = [attrib]
+      end
+      # => Return the Custom Filter Additions Hash
+      attribs
     end
 
-    # => List Nodes
-    def list
-      Node.list
+    #
+    # => Construct the Search Filter
+    #
+    def search_filter
+      # => Merge the Default Filter with Additions
+      default_search_filter.merge(search_filter_additions).reject { |_k, v| v.nil? || String(v).empty? }
+    end
+
+    #
+    # => Define Extra Attributes for Resource Return
+    #
+    def custom_attributes(node)
+      attribs = {}
+      Array(Config.rundeck[:extras]).each do |attrib|
+        attribs[attrib.to_sym] = node[attrib].inspect
+      end
+      # => Return the Custom Attributes Hash
+      attribs
+    end
+
+    def search(pattern = '*:*') # rubocop: disable AbcSize
+      # => Initialize the Configuration
+      transient_settings
+      pattern = Config.query_params['pattern'] if Config.query_params['pattern']
+      # => Execute the Chef Search
+      result = PartialSearch.query(:node, search_filter, pattern, start: 0)
+
+      # => Custom-Tailor the Resulting Objects
+      result.rows.collect do |node|
+        {
+          nodename: node['name'],
+          hostname: node['fqdn'] || node['hostname'],
+          osArch: node['kernel_machine'],
+          osFamily: node['platform'],
+          osName: node['platform'],
+          osVersion: node['platform_version'],
+          description: node['name'],
+          roles: node['roles'].join(','),
+          recipes: node['recipes'].join(','),
+          tags: [node['roles'], node['recipes'], node['chef_environment'], node['tags']].flatten.join(','),
+          environment: node['chef_environment'],
+          editUrl: ::File.join(Config.chef_api_endpoint, 'nodes', node['name']),
+          username: Config.rundeck[:username]
+        }.merge(custom_attributes(node)).reject { |_k, v| v.nil? || String(v).empty? }
+      end
     end
   end
 end
 
-# => Chef Search
-# => result = PartialSearch.query(:node, filter, '*:*', start: 1)
-# => nodes = result.rows.collect do |node|
-# =>   # => Custom-Tailor the Resulting Objects
-# =>   {
-# =>     'name' => node['name'],
-# =>     'chef_environment' => node['chef_environment'],
-# =>     'run_list' => node['run_list'],
-# =>     'recipes' => node['run_list'] ? node['run_list']['recipes'] : nil,
-# =>     'roles' => node['run_list'] ? node['run_list']['roles'] : nil,
-# =>     'fqdn' => node['fqdn'],
-# =>     'hostname' => node['hostname'],
-# =>     'kernel_machine' => node['kernel'] ? node['kernel']['machine'] : nil,
-# =>     'kernel_os' => node['kernel'] ? node['kernel']['os'] : nil,
-# =>     'platform' => node['platform'],
-# =>     'tags' => node['tags']
-# =>   }
-# => end
-# => 
+# =>
 # => resources = result.rows.collect do |node|
 # =>   custom = ['a', 'b', 'c'].map do |attribute|
 # =>       { "#{attribute}" => node['attribute'] }

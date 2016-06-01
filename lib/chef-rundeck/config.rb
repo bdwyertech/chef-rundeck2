@@ -40,6 +40,9 @@ module ChefRunDeck
     # => State File
     define_setting :state_file, File.join(root, 'config', 'state.json')
 
+    # => Project Configuration File
+    define_setting :projects_file, File.join(root, 'config', 'projects.json')
+
     #
     # => Chef API Configuration
     #
@@ -55,11 +58,17 @@ module ChefRunDeck
     define_setting :chef_api_admin_key # => Path to Key
 
     #
-    # => Facilitate Construction of Values
+    # => RunDeck Node Resource Configuration
+    #
+    # => Default Username (nil)
+    define_setting :rd_node_username, nil
+
+    #
+    # => Facilitate Dynamic Addition of Configuration Values
     #
     # => @return [class_variable]
     #
-    def build_config(config = hash)
+    def add(config = {})
       config.each do |key, value|
         define_setting key.to_sym, value
       end

@@ -71,6 +71,11 @@ module ChefRunDeck
              long: '--chef-api-admin-key ADMIN_KEY',
              description: 'The path to the Administratively-Privileged API Client Keyfile'
 
+      option :rd_node_username,
+             short: '-u USERNAME',
+             long: '--rundeck-node-user USERNAME',
+             description: 'The name of the User Account to place into the RunDeck Resource Provider'
+
       option :bind,
              short: '-b HOST',
              long: '--bind HOST',
@@ -116,6 +121,7 @@ module ChefRunDeck
         cfg.chef_api_client_key = config[:chef_api_client_key]
         cfg.chef_api_admin      = config[:chef_api_admin]
         cfg.chef_api_admin_key  = config[:chef_api_admin_key]
+        cfg.rd_node_username    = config[:rd_node_username]
       end
 
       # => Launch the API
