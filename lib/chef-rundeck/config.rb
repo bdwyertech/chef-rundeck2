@@ -66,6 +66,17 @@ module ChefRunDeck
     end
 
     #
+    # => Facilitate Dynamic Removal of Configuration Values
+    #
+    # => @return nil
+    #
+    def clear(config)
+      Array(config).each do |setting|
+        delete_setting setting
+      end
+    end
+
+    #
     # => List the Configurable Keys as a Hash
     #
     # @return [Hash]
