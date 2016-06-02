@@ -141,7 +141,27 @@ module ChefRunDeck
       # => Search for Matching Nodes
       get '/search' do
         cache_control :public, max_age: 30
-        Chef.partial_search.to_json
+        # => return Chef.search(params['pattern']).to_json if params['pattern']
+        Chef.search(params).to_json
+      end
+
+      # => Search for Matching Nodes
+      get '/test' do
+        cache_control :public, max_age: 10
+        # => abc =
+        # => Chef.reset!
+        Chef.search.unshift(Config.options).to_json
+        # => Chef.project_settings('project2').to_json
+        # => Config.options.to_json
+      end
+
+      # => Search for Matching Nodes (Project-Specific)
+      get '/:project/search' do |project|
+        cache_control :public, max_age: 10
+        # => Pass the Project into the Query Parameters
+        Config.query_params['project'] = project
+        # => Search & Return
+        Chef.search.unshift(Config.options).to_json
       end
 
       # => Add Node to the State

@@ -1,0 +1,17 @@
+{
+  "cloud_project": {
+    "pattern": "digital_ocean:*",
+    "username": "hello",
+    "extras": [
+      "cloud",
+      "cloud_v2"
+    ]
+  },
+  "cool_project": {
+    "pattern": "*:*",
+    "username": "cooldude",
+    "extras": [
+      "cpu"
+    ]
+  }
+}

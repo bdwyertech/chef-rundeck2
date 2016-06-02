@@ -41,7 +41,7 @@ module ChefRunDeck
       # => Reset the Chef API Configuration
       ChefAPI.reset!
       # => Clear Transient Configuration
-      Config.clear('rundeck')
+      Config.clear(:rundeck)
     end
 
     # => Get Node
@@ -83,7 +83,7 @@ module ChefRunDeck
     # => Try to Parse Project-Specific Settings
     #
     def project_settings(project)
-      settings = Util.parse_json_config(Config.projects_file)
+      settings = Util.parse_json_config(Config.projects_file, false)
       return {} unless settings && settings[project]
       settings[project]
     end
@@ -91,13 +91,15 @@ module ChefRunDeck
     #
     # => Construct Query-Specific Configuration
     #
-    def transient_settings(project = nil)
-      # => Define the
-      # => (cfg = {})[:rundeck] = {}
+    def transient_settings # rubocop: disable AbcSize
+      # => Initialize any Project-Specific Settings
+      project = project_settings(Config.query_params['project'])
+
+      # => Build the Configuration
       cfg = {}
-      cfg[:username] = Config.query_params['username'] || Config.rd_node_username
-      cfg[:pattern] = Config.query_params['pattern'] || '*:*'
-      cfg[:extras] = Util.serialize_csv(Config.query_params['extras'])
+      cfg[:username] = Config.query_params['username'] || project['username'] || Config.rd_node_username
+      cfg[:pattern] = Config.query_params['pattern'] || project['pattern'] || '*:*'
+      cfg[:extras] = Util.serialize_csv(Config.query_params['extras']) || project['extras']
 
       # => Make the Settings Available via the Config Object
       Config.add(rundeck: cfg)
@@ -160,7 +162,10 @@ module ChefRunDeck
     def search(pattern = '*:*') # rubocop: disable AbcSize
       # => Initialize the Configuration
       transient_settings
-      pattern = Config.query_params['pattern'] if Config.query_params['pattern']
+
+      # => Pull in the Pattern
+      pattern = Config.rundeck[:pattern]
+
       # => Execute the Chef Search
       result = PartialSearch.query(:node, search_filter, pattern, start: 0)
 
@@ -185,25 +190,3 @@ module ChefRunDeck
     end
   end
 end
-
-# =>
-# => resources = result.rows.collect do |node|
-# =>   custom = ['a', 'b', 'c'].map do |attribute|
-# =>       { "#{attribute}" => node['attribute'] }
-# =>   end
-# =>   {
-# =>     nodename: node['fqdn'],
-# =>     hostname: node['fqdn'] || node['hostname'],
-# =>     username: 'rundeck',
-# =>     osArch: node['kernel_machine'],
-# =>     osFamily: node['platform'],
-# =>     osName: node['platform'],
-# =>     osVersion: node['platform_version'],
-# =>     description: node['name'],
-# =>     roles: node['roles'].join(','),
-# =>     recipes: node['recipes'].join(','),
-# =>     tags: [node['roles'], node['recipes'], node['chef_environment'], node['tags']].flatten.join(','),
-# =>     environment: node['chef_environment'],
-# =>     editUrl: '',
-# =>   }
-# => end
