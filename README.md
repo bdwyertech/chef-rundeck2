@@ -21,13 +21,35 @@ This gem also serves as a RunDeck options provider, delivering node search resul
 * Query parameters will overrule project-specific configuration.
 * You don't have to pass in a user, granting the ability to set that sort of configuration in the RunDeck project configuration.
 
+## State Functions
+* Display the State - GET - http://localhost:9125/chef/v1/state
+* List the Node's for a User - GET -  http://localhost:9125/chef/v1/list/${USERNAME}
+* Add a node to the State - POST - http://localhost:9125/chef/v1/add/${NODENAME}/${USERNAME} - type=${TYPE} can be specified as query_param in URL or POST Body
+** Subsequent calls to this endpoint for an existing node will add to the audit trail of the node in it's `Last_Modified:` field.  Type cannot be edited after inception.
+* Delete a node from the State and Chef Server - POST - http://localhost:9125/chef/v1/delete/${NODENAME} - auth_user=${USERNAME} as query_param in URL or POST Body
+
+
+## Other API Functions
+### Node Search - Return the Node Object in JSON Format
+* Exact Case Match - `http://localhost:9125/chef/v1/node/BD-MBPro.local`
+* Case-Insensitive Match - `http://localhost:9125/chef/v1/node/Bd-MbPrO.lOcAl?regex=1`
+
+## Node List - JSON Array of all Node Object Name's on the Chef Server (No Search Parameters)
+* `http://localhost:9125/chef/v1/list`
+
+## Configuration
+This project can use a JSON configuration file to seed configuration parameters.  Most configuration can also be passed in via the CLI, except Project definitions.
+* You can (and should) opt to use regular credentials for Unprivileged Chef API calls.  This does not have to be a validation client; a regular client can suffice.  This is passed in via `chef-api-client-name` & `chef-api-client-key`
+* Priviledged Chef Server credentials can be passed in via `chef-api-admin-name` and `chef-api-admin-key`. Be sure to keep the permissions tight on the PEM file.
+
+
 ## Running as a Service
 You'll likely want to run this as a service, `SystemD` or `Upstart` will likely be your friend in this regard.
 
 ## Security
 You should lock down permissions on all configuration files in this project to only the user which this runs as...
 
-To run this project securely, **DON'T** run it as the RunDeck user. 
+To run this project securely, **DON'T** run it as the RunDeck user.
 
 ## Caching
 This leans on `rack-cache` to serve as a caching mechanism.  The objective here was to make sure we don't pummel the Chef API with redundant queries.
