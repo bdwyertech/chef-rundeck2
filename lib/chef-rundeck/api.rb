@@ -9,6 +9,8 @@
 # All rights reserved - Do Not Redistribute
 #
 
+# => NOTE: Anything other than a STATUS 200 will trigger an error in the RunDeck plugin due to a hardcode in org.boon.HTTP
+
 require 'sinatra/base'
 require 'sinatra/namespace'
 require 'json'
@@ -75,6 +77,7 @@ module ChefRunDeck
           'Params: ' + params.inspect,
           'Cache Timeout: ' + Config.cache_timeout.to_s,
           'BRIAN IS COOooooooL',
+          { AppConfig: Config.options },
           { 'Sinatra Info' => env }
         ].compact
       )
@@ -175,42 +178,48 @@ module ChefRunDeck
       # => Search for Matching Nodes
       get '/search' do
         cache_control :public, max_age: 30
-        # => return Chef.search(params['pattern']).to_json if params['pattern']
-        Chef.search(params).to_json
+        Chef.search.to_json
       end
 
-      # => Search for Matching Nodes
-      get '/test' do
-        cache_control :public, max_age: 10
-        # => abc =
-        # => Chef.reset!
-        Chef.search.unshift(Config.options).to_json
-        # => Chef.project_settings('project2').to_json
-        # => Config.options.to_json
+      # => View Project-Specific Configuration
+      get '/:project/config' do |project|
+        Chef.project_settings(project).to_json
       end
 
       # => Search for Matching Nodes (Project-Specific)
       get '/:project/search' do |project|
-        cache_control :public, max_age: 10
+        cache_control :public, max_age: 30
         # => Pass the Project into the Query Parameters
         Config.query_params['project'] = project
         # => Search & Return
-        Chef.search.unshift(Config.options).to_json
+        Chef.search.to_json
       end
 
       # => Add Node to the State
       post '/add/:node/:user' do |node, user|
-        State.add_state(node, user, params)
+        status 200
+        State.add_state(node, user, params).to_json
       end
 
       # => Delete Node from the Chef Server
       post '/delete/:node' do |node|
         unless State.state.any? { |n| n[:name] == node }
           status 404
-          return "#{node} not found".to_json
+          return "#{node} not found in State".to_json
         end
-        # => Delete the Node
-        Chef.delete(node)
+
+        # => Check Authorization
+        if Auth.admin? || Auth.creator?(node) || Auth.role_admin?(Chef.run_list(node)) # => Auth.project_admin?(node)
+          status 200
+          # => Delete the Node
+          Chef.delete(node)
+          # => Remove it from the State
+          State.delete_state(node)
+          "#{node} Successfully Deleted".to_json
+        else
+          status 401
+          return 'Unauthorized'.to_json
+        end
       end
     end
   end
