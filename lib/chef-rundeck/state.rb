@@ -27,13 +27,14 @@ module ChefRunDeck
       @state ||= Util.parse_json_config(Config.state_file) || []
     end
 
-    def find_state(hash)
-      state.detect { |h| h[:name].casecmp(hash[:name]) == 0 }
+    def find_state(node)
+      state.detect { |h| h[:name].casecmp(node) == 0 }
     end
 
     def update_state(hash) # rubocop: disable AbcSize
       # => Check if Node Already Exists
-      existing = state.detect { |h| h[:name].casecmp(hash[:name]) == 0 }
+      # => existing = state.detect { |h| h[:name].casecmp(hash[:name]) == 0 }
+      existing = find_state(hash[:name])
       if existing # => Update the Existing Node
         state.delete(existing)
         audit_string = [DateTime.now, hash[:creator]].join(' - ')
@@ -50,13 +51,28 @@ module ChefRunDeck
 
     # => Add Node to the State
     def add_state(node, user, params)
-      # => Create a Node Object
+      # => Create a Node-State Object
       (n = {}) && (n[:name] = node)
       n[:created] = DateTime.now
       n[:creator] = user
       n[:type] = params['type'] if params['type']
+      # => Build the Updated State
       update_state(n)
-      state.to_json
+      # => Return the Added Node
+      find_state(node)
+    end
+
+    # => Remove Node from the State
+    def delete_state(node)
+      # => Find the Node
+      existing = find_state(node)
+      return 'Node not present in state' unless existing
+      # => Delete the Node from State
+      state.delete(existing)
+      # => Write Out the Updated State
+      write_state
+      # => Return the Deleted Node
+      existing
     end
 
     def write_state
@@ -65,8 +81,6 @@ module ChefRunDeck
 
       # => Write Out the Updated State
       Util.write_json_config(Config.state_file, state)
-      # => Return the Updated State
-      # => @state = state # => I don't think this is necessary
     end
   end
 end
