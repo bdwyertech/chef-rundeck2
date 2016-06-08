@@ -3,6 +3,7 @@
 # Chef Provider for RunDeck
 # Brian Dwyer - Intelligent Digital Services - 5/14/16
 
+require 'chef-rundeck/auth'
 require 'chef-rundeck/cli'
 require 'chef-rundeck/config'
 require 'chef-rundeck/state'

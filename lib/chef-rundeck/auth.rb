@@ -10,6 +10,8 @@
 #
 
 require 'chef-rundeck/config'
+require 'chef-rundeck/util'
+require 'digest'
 
 module ChefRunDeck
   # => Authorization Module
@@ -20,43 +22,57 @@ module ChefRunDeck
     # =>    Authorization    <= #
     #############################
 
-    def initialize
-      # => Define Authorization
-      @auth ||= (auth = {}) && (auth['roles'] = [])
-    end
-
     # => This holds the Authorization State
     attr_accessor :auth
 
+    def auth
+      # => Define Authorization
+      @auth ||= reset!
+    end
+
     def reset!
       # => Reset Authorization
-      @auth = (auth = {}) && (auth['roles'] = [])
+      @auth = { 'roles' => [] }
     end
 
-    def parse_auth
-      # => parse_json_config(ChefRunDeck.auth_file)
-      authfile = Config.auth_file
-      File.mtime(auth_file) if File.exist?(auth_file)
-      # => File.open('/path/to/file.extension', 'w') {|f| f.write(Marshal.dump(m)) }
-      # => { token: 'abc123' }
+    def parse(user = nil)
+      # => Try to Find the User and their Authorization
+      auth = Util.parse_json_config(Config.auth_file, false)
+      return reset! unless auth && auth[user]
+      @auth = auth[user]
     end
 
-    def valid?(user, project = nil, key = nil)
-      parse_auth.include?(user) && parse_auth[user]['roles'].any? { |r| ['admin', project].include? r }
+    def admin?
+      # => Check if a User is an Administrator
+      auth['roles'].any? { |x| x.casecmp('admin') == 0 }
     end
 
-    # => g.include?('bdwyer') && g['bdwyer']['roles'].any? { |r| ['admin', 'project'].include? r }
-    # => def default_auth
-    # =>   {
-    # =>     bdwyer: {
-    # =>       auth_key: 'abcd',
-    # =>       roles: ['admin']
-    # =>     },
-    # =>     testme: {
-    # =>       roles: ['alpha']
-    # =>     }
-    # =>   }
-    # =>   def abc
-    # => end
+    def creator?(node)
+      # => Grab the Node-State Object
+      existing = State.find_state(node)
+      return false unless existing
+      # => Check if Auth User was the Node-State Creator
+      existing[:creator].to_s.casecmp(Config.query_params['auth_user'].to_s) == 0
+    end
+
+    # => Validate the User's Authentication Key ## TODO: Use this, passthrough from a RunDeck Option Field
+    def key?
+      # => We store a SHA512 Hex Digest of the Key
+      return false unless Config.query_params['auth_key']
+      Digest::SHA512.hexdigest(Config.query_params['auth_key']) == auth['auth_key']
+    end
+
+    # => TODO: Project-Based Validation
+    def project_admin?(project = nil)
+      return false unless project.is_a?(Array)
+      # => parse_auth.include?(user) && parse_auth[user]['roles'].any? { |r| ['admin', project].include? r.to_s.downcase }
+      auth['roles'].any? { |r| ['admin', project].include? r.to_s.downcase }
+    end
+
+    # => Role-Based Administration
+    def role_admin?(run_list = nil)
+      return false unless run_list.is_a?(Array)
+      run_list.empty? || auth['roles'].any? { |role| run_list.any? { |r| r =~ /role\[#{role}\]/i } }
+    end
   end
 end
