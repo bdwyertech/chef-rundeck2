@@ -127,7 +127,16 @@ module ChefRunDeck
 
       # => Deliver Nodes the User is Authorized to Delete
       get '/list/:user' do |user|
-        State.state.select { |n| n[:creator].casecmp(user) == 0 }.map { |n| n[:name] }.to_json
+        # => User is part of this Route, not a Query-Param
+        Auth.parse(user)
+        # => Admins can see all Nodes
+        return State.state.map { |n| n[:name] }.to_json if Auth.admin?
+        # => Determine Role Admin Nodes
+        admin = State.state.select { |n| n[:type] && Auth.auth['roles'].any? { |r| r.to_s.casecmp(n[:type].to_s) == 0 } }.map { |n| n[:name] }
+        # => Find User-Created Nodes
+        created = State.state.select { |n| n[:creator].casecmp(user) == 0 }.map { |n| n[:name] }
+        # => Return the Nodes
+        (admin + created).uniq.to_json
       end
 
       # => Check if a Node Exists (Pass regex param for case insensitivity)
