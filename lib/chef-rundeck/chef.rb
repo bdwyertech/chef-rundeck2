@@ -56,16 +56,16 @@ module ChefRunDeck
       Node.list
     end
 
+    # => Return a Node's Run List
+    def run_list(node)
+      return [] unless Node.exists?(node)
+      Node.fetch(node).run_list
+    end
+
     # => Delete a Node Object
     def delete(node)
       # => Make sure the Node Exists
-      return unless Node.exists?(node)
-
-      # => Limit the Deletion to a Specific Role for Non-Admin's
-      unless auth['admin']
-        run_list = Node.fetch(node).run_list
-        return unless run_list.empty? || auth['roles'].any? { |role| run_list.any? { |r| r =~ /#{role}/i } }
-      end
+      return 'Node not found on Chef Server' unless Node.exists?(node)
 
       # => Initialize the Admin API Client Settings
       admin_api_client
@@ -73,6 +73,7 @@ module ChefRunDeck
       # => Delete the Client & Node Object
       Client.delete(node)
       Node.delete(node)
+      'Client/Node Deleted from Chef Server'
     end
 
     #############################
