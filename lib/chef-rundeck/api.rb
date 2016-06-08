@@ -96,15 +96,14 @@ module ChefRunDeck
       before do
         # => This is a JSON API
         content_type 'application/json'
-
+        # => Grab the Authentication Key if Exists
+        params['auth_key'] ||= env['HTTP_AUTHORIZATION']
         # => Make the Params Globally Accessible
         Config.define_setting :query_params, params
-
         # => Instantiate the Default Client
         Chef.api_client
-
-        # => Authorization
-        # => get_auth
+        # => User Authorization
+        Auth.parse(params['auth_user'])
       end
 
       # => Clean Up
@@ -136,6 +135,32 @@ module ChefRunDeck
         cache_control :public, max_age: 30
         regex = true if params['regex'] == '1'
         Chef.get_node(node, regex).to_json
+      end
+
+      # => View User Authorization
+      get '/auth' do
+        # => Return User Authorization
+        {
+          User: params['auth_user'],
+          Admin: Auth.admin?,
+          Authorization: Auth.auth,
+          Auth_Key_Match?: Auth.key?
+        }.to_json
+      end
+
+      # => View User Authorization
+      post '/auth' do
+        # => Return User Authorization
+        {
+          User: params['auth_user'],
+          Admin: Auth.admin?,
+          Authorization: Auth.auth,
+          Auth_Key_Match?: Auth.key?
+        }.to_json
+        # => {
+        # =>   'Sinatra Info' => env,
+        # =>   Headers: headers
+        # => }.to_json
       end
 
       # => Search for Matching Nodes
