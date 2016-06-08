@@ -112,6 +112,7 @@ module ChefRunDeck
       ChefRunDeck::Config.setup do |cfg|
         cfg.config_file         = config[:config_file]
         cfg.cache_timeout       = config[:cache_timeout].to_i
+        cfg.bind                = config[:bind]
         cfg.port                = config[:port]
         cfg.auth_file           = config[:auth_file]
         cfg.state_file          = config[:state_file]
