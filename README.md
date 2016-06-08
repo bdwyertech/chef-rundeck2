@@ -53,6 +53,7 @@ To run this project securely, **DON'T** run it as the RunDeck user.
 
 ## Caching
 This leans on `rack-cache` to serve as a caching mechanism.  The objective here was to make sure we don't pummel the Chef API with redundant queries.
+* Timeout can be configured via the `cache_timeout` setting. **Default:** *30 seconds*
 
 ## Credits
 This Gem leans heavily on Seth Vargo's `ChefAPI` gem.  I also took many ideas from his Gem to build this one, as I've never written anything like this before.  Thank you, Seth, for both the `ChefAPI` gem and for your consistent high quality contributions to the DevOps community.
