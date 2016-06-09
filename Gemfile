@@ -9,6 +9,7 @@ gem 'sinatra' # => Web Server
 gem 'sinatra-contrib' # => For namespaces
 
 group :development do
+  gem 'rake'
   gem 'rspec'
   gem 'rubocop'
 end

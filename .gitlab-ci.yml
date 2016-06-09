@@ -27,7 +27,7 @@ release:Ruby 2.2:
       - vendor/bundle
   script:
     - bundle exec rubocop
-    - rake build
+    - bundle exec rake build
   artifacts:
     paths:
       - pkg/*.gem
