@@ -1,0 +1,37 @@
+before_script:
+  - ruby -v
+  - which ruby
+  - gem install bundler --no-ri --no-rdoc
+  - bundle install --jobs $(nproc) --path vendor/bundle
+
+test:Ruby 2.2:
+  image: ruby:2.2
+  cache:
+    group: ruby_2.2
+    paths:
+      - .bundle
+      - vendor/bundle
+  script:
+    - bundle exec rubocop
+  tags:
+    - ruby
+  except:
+    - tags
+
+release:Ruby 2.2:
+  image: ruby:2.2
+  cache:
+    group: ruby_2.2
+    paths:
+      - .bundle
+      - vendor/bundle
+  script:
+    - bundle exec rubocop
+    - rake build
+  artifacts:
+    paths:
+      - pkg/*.gem
+  tags:
+    - ruby
+  only:
+    - tags

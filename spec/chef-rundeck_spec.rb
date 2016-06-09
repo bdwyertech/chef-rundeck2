@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Githubrundeck do
+describe ChefRunDeck do
   it 'has a version number' do
-    expect(Githubrundeck::VERSION).not_to be nil
+    expect(ChefRunDeck::VERSION).not_to be nil
   end
 
   it 'does something useful' do

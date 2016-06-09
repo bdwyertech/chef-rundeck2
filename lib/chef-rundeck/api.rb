@@ -124,7 +124,7 @@ module ChefRunDeck
 
       # => Retrieve a List of Nodes
       get '/list' do
-        cache_control :public, max_age: 30
+        cache_control :public, max_age: Config.cache_timeout
         Chef.list.to_json
       end
 
@@ -144,7 +144,7 @@ module ChefRunDeck
 
       # => Check if a Node Exists (Pass regex param for case insensitivity)
       get '/node/:node' do |node|
-        cache_control :public, max_age: 30
+        cache_control :public, max_age: Config.cache_timeout
         regex = true if params['regex'] == '1'
         Chef.get_node(node, regex).to_json
       end
@@ -177,7 +177,7 @@ module ChefRunDeck
 
       # => Search for Matching Nodes
       get '/search' do
-        cache_control :public, max_age: 30
+        cache_control :public, max_age: Config.cache_timeout
         Chef.search.to_json
       end
 
@@ -188,7 +188,7 @@ module ChefRunDeck
 
       # => Search for Matching Nodes (Project-Specific)
       get '/:project/search' do |project|
-        cache_control :public, max_age: 30
+        cache_control :public, max_age: Config.cache_timeout
         # => Pass the Project into the Query Parameters
         Config.query_params['project'] = project
         # => Search & Return
