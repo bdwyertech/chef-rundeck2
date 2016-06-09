@@ -29,6 +29,7 @@ release:Ruby 2.2:
     - bundle exec rubocop
     - bundle exec rake build
   artifacts:
+    name: "chef-rundeck2-$CI_BUILD_REF_NAME"
     paths:
       - pkg/*.gem
   tags:

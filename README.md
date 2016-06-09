@@ -66,7 +66,7 @@ Also, thank you to Adam Jacob for initially developing the `chef-rundeck` gem wh
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'chef-rundeck'
+gem 'chef-rundeck2'
 ```
 
 And then execute:
@@ -75,7 +75,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install chef-rundeck
+    $ gem install chef-rundeck2
 
 ## Usage
 
