@@ -1,0 +1,12 @@
+Style/ModuleFunction:
+  Enabled: false
+
+Style/WordArray:
+  Enabled: false
+
+Style/FileName:
+  Enabled: false
+
+AllCops:
+  Include:
+    - lib/

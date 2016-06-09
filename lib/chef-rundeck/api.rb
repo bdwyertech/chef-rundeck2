@@ -23,16 +23,7 @@ require 'chef-rundeck/state'
 # => Chef Options Provider for RunDeck
 module ChefRunDeck
   # => HTTP API
-  class API < Sinatra::Base
-    # => Include Modules
-    # => include ChefAPI::Resource
-    # => include ChefRunDeck::State
-
-    # => def initialize
-    # =>   # => Call any Initalize Methods in Included Modules (Superclass)
-    # =>   super
-    # => end
-
+  class API < Sinatra::Base # rubocop: disable ClassLength
     #######################
     # =>    Sinatra    <= #
     #######################
@@ -91,8 +82,6 @@ module ChefRunDeck
     ########################
     # =>    JSON API    <= #
     ########################
-
-    # => Instantiate these blocks on a Per-Project Basis
 
     namespace '/chef/v1' do
       # => Define our common namespace parameters

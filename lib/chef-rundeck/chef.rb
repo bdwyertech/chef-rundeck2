@@ -14,7 +14,7 @@ require 'chef-rundeck/config'
 
 module ChefRunDeck
   # => This is the Chef module.  It interacts with the Chef server
-  module Chef
+  module Chef # rubocop: disable ModuleLength
     extend self
     # => Include Modules
     include ChefAPI::Resource
