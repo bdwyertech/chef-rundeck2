@@ -1,8 +1,6 @@
 # Chef-RunDeck
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/chef-rundeck`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+* Chef Resource Provider for RunDeck utilizing the `RESOURCE-JSON` format
+* RunDeck Options Provider for State of Provisioning
 
 ## Background
 This project started out to act as a proxy for administrative Chef Server interactions, namely client/node deletion.
