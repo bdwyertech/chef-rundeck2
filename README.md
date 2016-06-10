@@ -56,7 +56,7 @@ This leans on `rack-cache` to serve as a caching mechanism.  The objective here 
 ## Credits
 This Gem leans heavily on Seth Vargo's `ChefAPI` gem.  I also took many ideas from his Gem to build this one, as I've never written anything like this before.  Thank you, Seth, for both the `ChefAPI` gem and for your consistent high quality contributions to the DevOps community.
 
-Also, thank you to Adam Jacob for initially developing the `chef-rundeck` gem which served as a baseline for building the Options Provider portion of this one. Thanks for Chef, you've greatly reduce the amount of chaos in my work life!
+Also, thank you to Adam Jacob for initially developing the `chef-rundeck` gem which served as a baseline for building the Resource Provider portion of this one. Thanks for Chef, you've greatly reduce the amount of chaos in my work life!
 
 
 ## Installation
