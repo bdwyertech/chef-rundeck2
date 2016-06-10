@@ -1,6 +1,7 @@
 # Chef-RunDeck
 * Chef Resource Provider for RunDeck utilizing the `RESOURCE-JSON` format
 * RunDeck Options Provider for State of Provisioning
+* Proxy to Chef Server for Client/Node Object Deletion
 
 ## Background
 This project started out to act as a proxy for administrative Chef Server interactions, namely client/node deletion.
