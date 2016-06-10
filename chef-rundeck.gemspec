@@ -30,11 +30,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   # => Dependencies
-  spec.add_runtime_dependency 'chef-api', '~> 0.6.0'
-  spec.add_runtime_dependency 'mixlib-cli', '~> 1.6.0'
-  spec.add_runtime_dependency 'rack-cache', '~> 1.6.1'
-  spec.add_runtime_dependency 'sinatra', '~> 1.4.7'
-  spec.add_runtime_dependency 'sinatra-contrib', '~> 1.4.7'
+  spec.add_runtime_dependency 'chef-api', '~> 0.6'
+  spec.add_runtime_dependency 'mixlib-cli', '~> 1.6'
+  spec.add_runtime_dependency 'rack-cache', '~> 1.6'
+  spec.add_runtime_dependency 'sinatra', '~> 1.4'
+  spec.add_runtime_dependency 'sinatra-contrib', '~> 1.4'
 
   # => Development Dependencies
   spec.add_development_dependency 'bundler', '~> 1.12'
