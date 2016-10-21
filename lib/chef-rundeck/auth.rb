@@ -72,6 +72,7 @@ module ChefRunDeck
     # => Role-Based Administration
     def role_admin?(run_list = nil)
       return false unless run_list.is_a?(Array)
+      # => This will Authorize Anyone if the RunList is Empty or the Chef Node does not exist!!!
       run_list.empty? || auth['roles'].any? { |role| run_list.any? { |r| r =~ /role\[#{role}\]/i } }
     end
   end

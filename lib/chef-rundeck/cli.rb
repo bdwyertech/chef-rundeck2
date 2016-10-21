@@ -103,13 +103,13 @@ module ChefRunDeck
       json_config = Util.parse_json_config(cli.config[:config_file])
 
       # => Grab the Default Values
-      default = ChefRunDeck::Config.options
+      default = Config.options
 
       # => Merge Configuration (JSON File Wins)
       config = [default, json_config, cli.config].compact.reduce(:merge)
 
       # => Apply Configuration
-      ChefRunDeck::Config.setup do |cfg|
+      Config.setup do |cfg|
         cfg.config_file         = config[:config_file]
         cfg.cache_timeout       = config[:cache_timeout].to_i
         cfg.bind                = config[:bind]
@@ -126,7 +126,7 @@ module ChefRunDeck
       end
 
       # => Launch the API
-      ChefRunDeck::API.run!
+      API.run!
     end
   end
 end
