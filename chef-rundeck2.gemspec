@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
 
   # => Dependencies
   spec.add_runtime_dependency 'chef-api', '~> 0.6'
-  spec.add_runtime_dependency 'mixlib-cli', '~> 1.6'
+  spec.add_runtime_dependency 'mixlib-cli', '~> 1.7'
   spec.add_runtime_dependency 'rack-cache', '~> 1.6'
   spec.add_runtime_dependency 'sinatra', '~> 1.4'
   spec.add_runtime_dependency 'sinatra-contrib', '~> 1.4'

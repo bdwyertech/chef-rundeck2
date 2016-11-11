@@ -99,13 +99,13 @@ module ChefRunDeck
       cli = Options.new
       cli.parse_options(argv)
 
-      # => Parse JSON Config File (If Specified & Exists)
-      json_config = Util.parse_json_config(cli.config[:config_file])
-
       # => Grab the Default Values
       default = Config.options
 
-      # => Merge Configuration (JSON File Wins)
+      # => Parse JSON Config File (If Specified and Exists)
+      json_config = Util.parse_json_config(cli.config[:config_file] || Config.config_file)
+
+      # => Merge Configuration (CLI Wins)
       config = [default, json_config, cli.config].compact.reduce(:merge)
 
       # => Apply Configuration
@@ -116,7 +116,7 @@ module ChefRunDeck
         cfg.port                = config[:port]
         cfg.auth_file           = config[:auth_file]
         cfg.state_file          = config[:state_file]
-        cfg.environment         = config[:environment].to_sym
+        cfg.environment         = config[:environment].to_sym.downcase
         cfg.chef_api_endpoint   = config[:chef_api_endpoint]
         cfg.chef_api_client     = config[:chef_api_client]
         cfg.chef_api_client_key = config[:chef_api_client_key]

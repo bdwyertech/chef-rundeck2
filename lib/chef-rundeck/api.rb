@@ -72,7 +72,7 @@ module ChefRunDeck
           { 'Sinatra Info' => env }
         ].compact
       )
-    end
+    end if development?
 
     get '/state' do
       content_type 'application/json'
