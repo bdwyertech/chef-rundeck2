@@ -53,26 +53,28 @@ module ChefRunDeck
     ########################
 
     # => Current Configuration & Healthcheck Endpoint
-    get '/config' do
-      content_type 'application/json'
-      JSON.pretty_generate(
-        [
-          ChefRunDeck.inspect + ' is up and running!',
-          'Author: ' + Config.author,
-          'Environment: ' + Config.environment.to_s,
-          'Root: ' + Config.root.to_s,
-          'Config File: ' + (Config.config_file if File.exist?(Config.config_file)).to_s,
-          'Auth File: ' + (Config.auth_file if File.exist?(Config.auth_file)).to_s,
-          'State File: ' + (Config.state_file if File.exist?(Config.state_file)).to_s,
-          { State: State.state.map { |n| n[:name] } },
-          'Params: ' + params.inspect,
-          'Cache Timeout: ' + Config.cache_timeout.to_s,
-          'BRIAN IS COOooooooL',
-          { AppConfig: Config.options },
-          { 'Sinatra Info' => env }
-        ].compact
-      )
-    end if development?
+    if development?
+      get '/config' do
+        content_type 'application/json'
+        JSON.pretty_generate(
+          [
+            ChefRunDeck.inspect + ' is up and running!',
+            'Author: ' + Config.author,
+            'Environment: ' + Config.environment.to_s,
+            'Root: ' + Config.root.to_s,
+            'Config File: ' + (Config.config_file if File.exist?(Config.config_file)).to_s,
+            'Auth File: ' + (Config.auth_file if File.exist?(Config.auth_file)).to_s,
+            'State File: ' + (Config.state_file if File.exist?(Config.state_file)).to_s,
+            { State: State.state.map { |n| n[:name] } },
+            'Params: ' + params.inspect,
+            'Cache Timeout: ' + Config.cache_timeout.to_s,
+            'BRIAN IS COOooooooL',
+            { AppConfig: Config.options },
+            { 'Sinatra Info' => env }
+          ].compact
+        )
+      end
+    end
 
     get '/state' do
       content_type 'application/json'
@@ -124,9 +126,9 @@ module ChefRunDeck
         # => Admins can see all Nodes
         return State.state.map { |n| n[:name] }.to_json if Auth.admin?
         # => Determine Role Admin Nodes
-        admin = State.state.select { |n| n[:type] && Auth.auth['roles'].any? { |r| r.to_s.casecmp(n[:type].to_s) == 0 } }.map { |n| n[:name] }
+        admin = State.state.select { |n| n[:type] && Auth.auth['roles'].any? { |r| r.to_s.casecmp(n[:type].to_s).zero? } }.map { |n| n[:name] }
         # => Find User-Created Nodes
-        created = State.state.select { |n| n[:creator].casecmp(user) == 0 }.map { |n| n[:name] }
+        created = State.state.select { |n| n[:creator].casecmp(user).zero? }.map { |n| n[:name] }
         # => Return the Nodes
         (admin + created).uniq.to_json
       end

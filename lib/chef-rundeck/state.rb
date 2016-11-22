@@ -28,12 +28,11 @@ module ChefRunDeck
     end
 
     def find_state(node)
-      state.detect { |h| h[:name].casecmp(node) == 0 }
+      state.detect { |h| h[:name].casecmp(node).zero? }
     end
 
     def update_state(hash) # rubocop: disable AbcSize
       # => Check if Node Already Exists
-      # => existing = state.detect { |h| h[:name].casecmp(hash[:name]) == 0 }
       existing = find_state(hash[:name])
       if existing # => Update the Existing Node
         state.delete(existing)

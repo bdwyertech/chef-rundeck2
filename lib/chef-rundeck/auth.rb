@@ -44,7 +44,7 @@ module ChefRunDeck
 
     def admin?
       # => Check if a User is an Administrator
-      auth['roles'].any? { |x| x.casecmp('admin') == 0 }
+      auth['roles'].any? { |x| x.casecmp('admin').zero? }
     end
 
     def creator?(node)
@@ -52,7 +52,7 @@ module ChefRunDeck
       existing = State.find_state(node)
       return false unless existing
       # => Check if Auth User was the Node-State Creator
-      existing[:creator].to_s.casecmp(Config.query_params['auth_user'].to_s) == 0
+      existing[:creator].to_s.casecmp(Config.query_params['auth_user'].to_s).zero?
     end
 
     # => Validate the User's Authentication Key ## TODO: Use this, passthrough from a RunDeck Option Field
