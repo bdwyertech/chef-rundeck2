@@ -2,7 +2,7 @@
 # rubocop: disable LineLength
 #
 # Gem Name:: chef-rundeck
-# ChefRunDeck:: CLI
+# Module:: State
 #
 # Copyright (C) 2016 Brian Dwyer - Intelligent Digital Services
 #

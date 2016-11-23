@@ -2,7 +2,7 @@
 # rubocop: disable LineLength, MethodLength, AbcSize
 #
 # Gem Name:: chef-rundeck
-# ChefRunDeck:: CLI
+# Module:: CLI
 #
 # Copyright (C) 2016 Brian Dwyer - Intelligent Digital Services
 #
