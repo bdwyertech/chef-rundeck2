@@ -26,7 +26,7 @@ release:Ruby 2.4:
   script:
     - bundle exec rubocop
     - gem install dpl --no-document
-    - dpl --provider=rubygems --api-key=$RUBYGEMS_API_KEY
+    - dpl --provider=rubygems --api-key=$RUBYGEMS_API_KEY --gem=chef-rundeck2
   artifacts:
     name: "chef-rundeck2-$CI_BUILD_REF_NAME"
     paths:
