@@ -1,11 +1,11 @@
 before_script:
   - ruby -v
   - which ruby
-  - gem install bundler --no-ri --no-rdoc
+  - gem install bundler --no-document
   - bundle install --jobs $(nproc) --path vendor/bundle
 
-test:Ruby 2.3:
-  image: ruby:2.3
+test:Ruby 2.4:
+  image: ruby:2.4
   cache:
     paths:
       - .bundle
@@ -17,19 +17,20 @@ test:Ruby 2.3:
   except:
     - tags
 
-release:Ruby 2.3:
-  image: ruby:2.3
+release:Ruby 2.4:
+  image: ruby:2.4
   cache:
     paths:
       - .bundle
       - vendor/bundle
   script:
     - bundle exec rubocop
-    - bundle exec rake build
+    - gem install dpl --no-document
+    - dpl --provider=rubygems --api-key=$RUBYGEMS_API_KEY
   artifacts:
     name: "chef-rundeck2-$CI_BUILD_REF_NAME"
     paths:
-      - pkg/*.gem
+      - ./*.gem
   tags:
     - ruby
   only:

@@ -83,22 +83,20 @@ module ChefRunDeck
     #
     # => Try to Parse Project-Specific Settings
     #
-    def project_settings(project)
+    private def project
+      projectname = Config.query_params['project']
+      return {} unless projectname
       settings = Util.parse_json_config(Config.projects_file, false)
-      return {} unless settings && settings[project]
-      settings[project]
+      return {} unless settings && settings[projectname]
+      settings[projectname]
     end
 
     #
     # => Construct Query-Specific Configuration
     #
-    def transient_settings # rubocop: disable AbcSize
-      # => Initialize any Project-Specific Settings
-      project = project_settings(Config.query_params['project'])
-
+    private def transient_settings
       # => Build the Configuration
       cfg = {}
-      cfg[:username] = Config.query_params['username'] || project['username'] || Config.rd_node_username
       cfg[:pattern] = Config.query_params['pattern'] || project['pattern'] || '*:*'
       cfg[:extras] = Util.serialize_csv(Config.query_params['extras']) || project['extras']
 
@@ -109,7 +107,7 @@ module ChefRunDeck
     #
     # => Base Search Filter Definition
     #
-    def default_search_filter
+    private def default_search_filter
       {
         name: ['name'],
         kernel_machine: ['kernel', 'machine'],
@@ -122,7 +120,11 @@ module ChefRunDeck
         platform: ['platform'],
         platform_version: ['platform_version'],
         tags: ['tags'],
-        hostname: ['hostname']
+        hostname: ['hostname'],
+        rd_hostname: ['rd_hostname'],
+        rd_ssh_port: ['rd_ssh_port'],
+        rd_winrm_port: ['rd_winrm_port'],
+        rd_username: ['rd_username']
       }
     end
 
@@ -131,7 +133,7 @@ module ChefRunDeck
     #
     # => Default Elements can be removed by passing them in here as null or empty
     #
-    def search_filter_additions
+    private def search_filter_additions
       attribs = {}
       Array(Config.rundeck[:extras]).each do |attrib|
         attribs[attrib.to_sym] = [attrib]
@@ -143,7 +145,7 @@ module ChefRunDeck
     #
     # => Construct the Search Filter
     #
-    def search_filter
+    private def search_filter
       # => Merge the Default Filter with Additions
       default_search_filter.merge(search_filter_additions).reject { |_k, v| v.nil? || String(v).empty? }
     end
@@ -151,7 +153,7 @@ module ChefRunDeck
     #
     # => Define Extra Attributes for Resource Return
     #
-    def custom_attributes(node)
+    private def custom_attributes(node)
       attribs = {}
       Array(Config.rundeck[:extras]).each do |attrib|
         attribs[attrib.to_sym] = node[attrib].inspect
@@ -174,20 +176,67 @@ module ChefRunDeck
       result.rows.collect do |node|
         {
           nodename: node['name'],
-          hostname: node['fqdn'] || node['hostname'],
+          hostname: build_hostname(node),
           osArch: node['kernel_machine'],
           osFamily: node['platform'],
           osName: node['platform'],
           osVersion: node['platform_version'],
           description: node['name'],
-          roles: node['roles'].join(','),
-          recipes: node['recipes'].join(','),
-          tags: [node['roles'], node['recipes'], node['chef_environment'], node['tags']].flatten.join(','),
+          roles: node['roles'].sort.join(','),
+          recipes: node['recipes'].sort.join(','),
+          tags: [node['roles'], node['chef_environment'], node['tags']].flatten.sort.join(','),
           environment: node['chef_environment'],
           editUrl: ::File.join(Config.chef_api_endpoint, 'nodes', node['name']),
-          username: Config.rundeck[:username]
+          username: remote_username(node)
         }.merge(custom_attributes(node)).reject { |_k, v| v.nil? || String(v).empty? }
       end
+    end
+
+    #
+    # => Build the Hostname
+    #
+    private def build_hostname(node) # rubocop:
+      # => anode.bdwyertech.net:22
+      [remote_hostname(node), remote_port(node)].compact.join(':')
+    end
+
+    #
+    # => Determine the Remote Hostname
+    #
+    private def remote_hostname(node)
+      node['rd_hostname'] || node['fqdn'] || node['hostname']
+    end
+
+    #
+    # => Determine the Remote Port
+    #
+    private def remote_port(node)
+      # => WinRM if Windows
+      if node['platform'] == 'windows'
+        [
+          node['rd_winrm_port'],
+          Config.query_params['winrm_port'],
+          project['winrm_port']
+        ].find { |winrm_port| winrm_port }
+      else
+        # => SSH for Everything Else
+        [
+          node['rd_ssh_port'],
+          Config.query_params['ssh_port'],
+          project['ssh_port']
+        ].find { |ssh_port| ssh_port }
+      end
+    end
+    #
+    # => Determine the Remote Username
+    #
+    private def remote_username(node)
+      [
+        node['rd_username'],
+        Config.query_params['username'],
+        project['username'],
+        Config.rd_node_username
+      ].find { |username| username }
     end
   end
 end

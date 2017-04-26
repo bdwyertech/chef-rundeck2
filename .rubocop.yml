@@ -7,6 +7,12 @@ Style/WordArray:
 Style/FileName:
   Enabled: false
 
+Style/EmptyLineAfterMagicComment:
+  Enabled: false
+
+Style/PercentLiteralDelimiters:
+  Enabled: false
+
 Metrics/BlockLength:
   Enabled: false
 

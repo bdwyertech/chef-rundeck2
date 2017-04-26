@@ -2,6 +2,13 @@ Chef-RunDeck2 Changelog
 =========================
 This file is used to list changes made in each version of the `chef-rundeck2` gem.
 
+v0.1.3 (2017-04-26)
+-------------------
+### Enhancements
+- Allow customizing hostname:port value via Chef node attributes, API query params and project config file
+- Sort Recipes & Tags
+- Remove Recipes from Tags
+
 v0.1.2 (2016-11-11)
 -------------------
 ### Enhancements

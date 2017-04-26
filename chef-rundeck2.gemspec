@@ -11,14 +11,13 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Brian Dwyer']
   spec.email         = ['bdwyer@IEEE.org']
 
-  spec.summary       = %q(Chef Options Provider for RunDeck with Extras)
-  # => spec.description   = %q(TODO: Write a longer description or delete this line.)
+  spec.summary       = %w(Chef Options Provider for RunDeck with Extras)
   spec.homepage      = 'https://github.com/bdwyertech/chef-rundeck2'
   spec.license       = 'MIT'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
-  if spec.respond_to?(:metadata)
+  if spec.respond_to?(:metadata) # rubocop: disable GuardClause
     spec.metadata['allowed_push_host'] = 'https://rubygems.org'
   else
     raise 'RubyGems 2.0 or newer is required to protect against public gem pushes.'
@@ -30,7 +29,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   # => Dependencies
-  spec.add_runtime_dependency 'chef-api', '~> 0.6'
+  spec.add_runtime_dependency 'chef-api', '~> 0.7'
   spec.add_runtime_dependency 'mixlib-cli', '~> 1.7'
   spec.add_runtime_dependency 'rack-cache', '~> 1.6'
   spec.add_runtime_dependency 'sinatra', '~> 1.4'
@@ -40,5 +39,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'bundler', '~> 1.12'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
-  spec.add_development_dependency 'rubocop'
+  spec.add_development_dependency 'rubocop', '~> 0.48'
 end

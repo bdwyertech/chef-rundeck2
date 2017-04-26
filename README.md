@@ -20,6 +20,8 @@ This gem also serves as a RunDeck options provider, delivering node search resul
 * Query parameters will overrule project-specific configuration.
 * You don't have to pass in a user, granting the ability to set that sort of configuration in the RunDeck project configuration.
 
+* Chef node attributes `rd_hostname`, `rd_ssh_port`, `rd_winrm_port`, or `rd_username` will override values set elsewhere.
+
 ## State Functions
 * Display the State - GET - http://localhost:9125/chef/v1/state
 * List the Node's for a User - GET -  http://localhost:9125/chef/v1/list/${USERNAME}
