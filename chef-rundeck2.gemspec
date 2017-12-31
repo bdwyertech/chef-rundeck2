@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Brian Dwyer']
   spec.email         = ['bdwyer@IEEE.org']
 
-  spec.summary       = %w(Chef Options Provider for RunDeck with Extras)
+  spec.summary       = 'Chef Options Provider for RunDeck with Extras'
   spec.homepage      = 'https://github.com/bdwyertech/chef-rundeck2'
   spec.license       = 'MIT'
 
