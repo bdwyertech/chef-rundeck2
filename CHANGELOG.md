@@ -2,7 +2,7 @@ Chef-RunDeck2 Changelog
 =========================
 This file is used to list changes made in each version of the `chef-rundeck2` gem.
 
-v0.1.4 (2017-09-15)
+v0.1.5 (2017-12-31)
 -------------------
 ### Fix
 - Fix permissions on gem files
